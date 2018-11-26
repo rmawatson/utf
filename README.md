@@ -2,10 +2,9 @@
 [![Build Status](https://travis-ci.com/rmawatson/utf.svg?branch=master)](https://travis-ci.com/rmawatson/utf)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3287a3623db942fa887042e2624c5a6e)](https://www.codacy.com/app/rmawatson/utf?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=rmawatson/utf&amp;utm_campaign=Badge_Grade)
 [![GitHub License](https://img.shields.io/badge/license-Boost%201.0-blue.svg)](https://github.com/rmawatson/utf/blob/master/LICENSE)
-![os](https://img.shields.io/badge/os-windows-blue.svg?logo=windows&longCache=true&style=flat&logoColor=white)
-![os](https://img.shields.io/badge/os-osx-blue.svg?logo=apple&longCache=true&style=flat&logoColor=white)
-![os](https://img.shields.io/badge/os-linux-blue.svg?logo=linux&longCache=true&style=flat&logoColor=white)
-
+![platform](https://img.shields.io/badge/platform-visual%20studio-blue.svg?logo=windows&longCache=true&style=flat&logoColor=white)
+![platform](https://img.shields.io/badge/platform-xcode-blue.svg?logo=apple&longCache=true&style=flat&logoColor=white)
+![platform](https://img.shields.io/badge/platform-gcc%20%2F%20clang-blue.svg?logo=linux&longCache=true&style=flat&logoColor=white)
 # UTF Iterators for modern C++
 
 ## Introduction

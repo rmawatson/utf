@@ -12,7 +12,7 @@ prefix_text = """/* Copyright (c) 2018, rmawatson@hotmail.com
 /* this file has been automatically generated on %s and should not be edited manually. */
  
 #pragma once
- """ % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+""" % datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 postfix_text = ""
 
 include_regex = re.compile(r'#include\s+?([<"])([\w\.]+)[">].*?\r?\n')

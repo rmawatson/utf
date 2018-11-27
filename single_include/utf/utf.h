@@ -7,7 +7,7 @@
 /* this file has been automatically generated on 2018-11-26 18:00:16 and should not be edited manually. */
  
 #pragma once
- #include <algorithm>
+#include <algorithm>
 #include <algorithm>
 #include <iterator>
 #include <type_traits>

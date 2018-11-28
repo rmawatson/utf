@@ -82,15 +82,9 @@ TEST_CASE("utf32_to_utf8_iterator" )
         utf32_to_utf16_iterator<base_iterator,utf::from<utf::little_endian>,utf::to<utf::little_endian>> u16iter_pos(base_begin);
         utf32_to_utf16_iterator<base_iterator,utf::from<utf::little_endian>,utf::to<utf::little_endian>> u16iter_end(base_end);
     
-        auto u16iter_rpos = std::make_reverse_iterator(u16iter_end);
-        auto u16iter_rend = std::make_reverse_iterator(u16iter_pos);
-    
         utf::u16string::iterator u16_data_pos = u16_data_le.begin();
         utf::u16string::iterator u16_data_end = u16_data_le.end();
-        
-        auto u16_data_rpos = std::make_reverse_iterator(u16_data_end);
-        auto u16_data_rend = std::make_reverse_iterator(u16_data_pos);
-    
+
         while(u16iter_pos != u16iter_end)
         {
             REQUIRE(u16_data_pos != u16_data_end);
@@ -101,15 +95,7 @@ TEST_CASE("utf32_to_utf8_iterator" )
 			REQUIRE(u32_to_u16_iter_value == u16_data_le_value);
         }
         
-        while(u16iter_rpos != u16iter_rend)
-        {
-            REQUIRE(u16_data_rpos != u16_data_rend);
 
-			auto u32_to_u16_riter_value = static_cast<uint16_t>(*u16iter_rpos++);
-			auto u16_rdata_le_value = static_cast<uint16_t>(*u16_data_rpos++);
-
-			REQUIRE(u32_to_u16_riter_value == u16_rdata_le_value);
-        }
     }
     
     
@@ -179,16 +165,10 @@ TEST_CASE("utf32_to_utf8_iterator" )
     
         utf32_to_utf16_iterator<base_iterator,utf::from<utf::little_endian>,utf::to<utf::big_endian>> u16iter_pos(base_begin);
         utf32_to_utf16_iterator<base_iterator,utf::from<utf::little_endian>,utf::to<utf::big_endian>> u16iter_end(base_end);
-    
-        auto u16iter_rpos = std::make_reverse_iterator(u16iter_end);
-        auto u16iter_rend = std::make_reverse_iterator(u16iter_pos);
-    
+
         utf::u16string::iterator u16_data_pos = u16_data_be.begin();
         utf::u16string::iterator u16_data_end = u16_data_be.end();
-        
-        auto u16_data_rpos = std::make_reverse_iterator(u16_data_end);
-        auto u16_data_rend = std::make_reverse_iterator(u16_data_pos);
-    
+
         while(u16iter_pos != u16iter_end)
         {
             REQUIRE(u16_data_pos != u16_data_end);
@@ -199,15 +179,6 @@ TEST_CASE("utf32_to_utf8_iterator" )
 			REQUIRE(u32_to_u16_iter_value == u16_data_be_value);
         }
         
-        while(u16iter_rpos != u16iter_rend)
-        {
-            REQUIRE(u16_data_rpos != u16_data_rend);
-
-			auto u32_to_u16_riter_value = static_cast<uint16_t>(*u16iter_rpos++);
-			auto u16_rdata_be_value = static_cast<uint16_t>(*u16_data_rpos++);
-
-			REQUIRE(u32_to_u16_riter_value == u16_rdata_be_value);
-        }
     }
     
 }

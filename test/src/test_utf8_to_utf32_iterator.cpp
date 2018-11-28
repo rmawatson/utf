@@ -80,15 +80,9 @@ TEST_CASE("utf8_to_utf32_iterator" )
     
         utf8_to_utf32_iterator<base_iterator,utf::to<utf::little_endian>> u8iter_pos(base_begin,base_begin,base_end);
         utf8_to_utf32_iterator<base_iterator,utf::to<utf::little_endian>> u8iter_end(base_end,base_begin,base_end);
-    
-        auto u8iter_rpos = std::make_reverse_iterator(u8iter_end);
-        auto u8iter_rend = std::make_reverse_iterator(u8iter_pos);
-    
+
         utf::u32string::iterator u32_le_data_pos = u32_le_data.begin();
         utf::u32string::iterator u32_le_data_end = u32_le_data.end();
-        
-        auto u32_le_data_rpos = std::make_reverse_iterator(u32_le_data_end);
-        auto u32_le_data_rend = std::make_reverse_iterator(u32_le_data_pos);
         
         
         while(u8iter_pos != u8iter_end)
@@ -101,15 +95,6 @@ TEST_CASE("utf8_to_utf32_iterator" )
 			REQUIRE(u8_to_u32_iter_value == u32_data_le_value);
         }
     
-        while(u8iter_rpos != u8iter_rend )
-        {
-            REQUIRE(u32_le_data_rpos != u32_le_data_rend);
-
-			auto u8_to_u32_riter_value = static_cast<uint32_t>(*u8iter_rpos++);
-			auto u32_rdata_le_value = static_cast<uint32_t>(*u32_le_data_rpos++);
-
-			REQUIRE(u8_to_u32_riter_value == u32_rdata_le_value);
-        }
 
     }
     /* big endian */
@@ -167,7 +152,7 @@ TEST_CASE("utf8_to_utf32_iterator" )
         }
     
     }
-    SECTION("iterate forward and reverse over underlying std::bidirectional_iterator_tag iterator with big_endian output" ) {
+    SECTION("iterate forward over underlying std::bidirectional_iterator_tag iterator with big_endian output" ) {
     
         using namespace utf;
         
@@ -188,7 +173,6 @@ TEST_CASE("utf8_to_utf32_iterator" )
         auto u32_be_data_rpos = std::make_reverse_iterator(u32_be_data_end);
         auto u32_be_data_rend = std::make_reverse_iterator(u32_be_data_pos);
         
-        
         while(u8iter_pos != u8iter_end)
         {
             REQUIRE(u32_be_data_pos != u32_be_data_end);
@@ -198,16 +182,7 @@ TEST_CASE("utf8_to_utf32_iterator" )
 
 			REQUIRE(u8_to_u32_iter_value == u32_data_be_value);
         }
-    
-        while(u8iter_rpos != u8iter_rend )
-        {
-            REQUIRE(u32_be_data_rpos != u32_be_data_rend);
 
-			auto u8_to_u32_riter_value = static_cast<uint32_t>(*u8iter_rpos++);
-			auto u32_rdata_be_value = static_cast<uint32_t>(*u32_be_data_rpos++);
-
-			REQUIRE(u8_to_u32_riter_value == u32_rdata_be_value);
-        }
     }
     
     SECTION( "detect utf8 data with bom" ) {

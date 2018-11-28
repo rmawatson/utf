@@ -87,7 +87,7 @@ Each iterator adapter models the catagory of the underlying base_iterator. To en
 ## Utility Functions
 
 The ```utfX_to_utfY()``` utility functions provide an easy way to convert between different unicode types. the ```base_iterator``` 
-deference operator should yeild a type convertible to uintX_t.
+dereference operator should yeild a type convertible to uintX_t.
 
 Each of ```utfX_to_utfY()``` use a default return value of uYstring, which can be changed by providing any type that has begin() end() and value_type as one of the tempalte parameters.
 for example,

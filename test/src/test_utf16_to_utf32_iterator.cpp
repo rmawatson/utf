@@ -82,37 +82,18 @@ TEST_CASE("utf16_to_utf32_iterator" )
     
         utf16_to_utf32_iterator<base_iterator,utf::to<utf::little_endian>> u16iter_pos(base_begin,base_begin,base_end);
         utf16_to_utf32_iterator<base_iterator,utf::to<utf::little_endian>> u16iter_end(base_end,base_begin,base_end);
-    
-        auto u16iter_rpos = std::make_reverse_iterator(u16iter_end);
-        auto u16iter_rend = std::make_reverse_iterator(u16iter_pos);
-    
+        
         utf::u32string::iterator u32_le_data_pos = u32_le_data.begin();
         utf::u32string::iterator u32_le_data_end = u32_le_data.end();
-        
-        auto u32_le_data_rpos = std::make_reverse_iterator(u32_le_data_end);
-        auto u32_le_data_rend = std::make_reverse_iterator(u32_le_data_pos);
-        
         
         while(u16iter_pos != u16iter_end)
         {
             REQUIRE(u32_le_data_pos != u32_le_data_end);
 
-
 			auto u16_to_u32_iter_value = static_cast<uint32_t>(*u16iter_pos++);
 			auto u32_le_data_value = static_cast<uint32_t>(*u32_le_data_pos++);
 
-
             REQUIRE(u16_to_u32_iter_value == u32_le_data_value);
-        }
-    
-        while(u16iter_rpos != u16iter_rend )
-        {
-            REQUIRE(u32_le_data_rpos != u32_le_data_rend);
-
-			auto u16_to_u32_riter_value = static_cast<uint32_t>(*u16iter_rpos++);
-			auto u32_le_rdata_value = static_cast<uint32_t>(*u32_le_data_rpos++);
-
-            REQUIRE(u16_to_u32_riter_value == u32_le_rdata_value );
         }
 
     }
@@ -183,16 +164,12 @@ TEST_CASE("utf16_to_utf32_iterator" )
     
         utf16_to_utf32_iterator<base_iterator,utf::to<utf::big_endian>> u16iter_pos(base_begin,base_begin,base_end);
         utf16_to_utf32_iterator<base_iterator,utf::to<utf::big_endian>> u16iter_end(base_end,base_begin,base_end);
-    
-        auto u16iter_rpos = std::make_reverse_iterator(u16iter_end);
-        auto u16iter_rend = std::make_reverse_iterator(u16iter_pos);
-    
+
         utf::u32string::iterator u32_be_data_pos = u32_be_data.begin();
         utf::u32string::iterator u32_be_data_end = u32_be_data.end();
         
         auto u32_be_data_rpos = std::make_reverse_iterator(u32_be_data_end);
         auto u32_be_data_rend = std::make_reverse_iterator(u32_be_data_pos);
-        
         
         while(u16iter_pos != u16iter_end)
         {
@@ -204,16 +181,6 @@ TEST_CASE("utf16_to_utf32_iterator" )
 			REQUIRE(u16_to_u32_iter_value == u32_be_data_value);
         }
     
-        while(u16iter_rpos != u16iter_rend )
-        {
-
-			REQUIRE(u32_be_data_rpos != u32_be_data_rend);
-
-			auto u16_to_u32_riter_value = static_cast<uint32_t>(*u16iter_rpos++);
-			auto u32_be_rdata_value = static_cast<uint32_t>(*u32_be_data_rpos++);
-
-            REQUIRE(u16_to_u32_riter_value == u32_be_rdata_value);
-        }
     }
     
     SECTION( "detect utf16 data with bom" ) {
@@ -259,33 +226,5 @@ TEST_CASE("utf16_to_utf32_iterator" )
         
     }
 
-    
-    /*
-    SECTION( "replace bad data" ) {
-    
-        using namespace utf;
-        
-        using base_iterator = utf::u16string::iterator;
-        utf::u16string u16data_bad        = read_file<char>("data/data_utf16_bad.txt");
-        utf::u32string u32data_replaced = read_file<char32_t>("data/data_utf32_utf16_bad_replaced.txt");
-
-        base_iterator base_begin = u16data_bad.begin();
-        base_iterator base_end   = u16data_bad.end();
-    
-        auto u32data_replaced_iter = u32data_replaced.begin();
-        auto u32data_replaced_end = u32data_replaced.end();
-    
-        utf16_to_utf32_iterator<base_iterator,utf::to<utf::little_endian>,utf::onerror<utf::replace_with_fffd>> u16iter_pos(base_begin,base_begin,base_end);
-        utf16_to_utf32_iterator<base_iterator,utf::to<utf::little_endian>,utf::onerror<utf::replace_with_fffd>> u16iter_end(base_end,base_begin,base_end);
-        
-        while(u16iter_pos != u16iter_end)
-        {
-            REQUIRE(u32data_replaced_iter != u32data_replaced_end);
-            REQUIRE( static_cast<uint32_t>(*u16iter_pos++) ==  static_cast<uint32_t>(*u32data_replaced_iter++) );
-        }
-
-    }
-
-    */
  
 }

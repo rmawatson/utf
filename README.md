@@ -9,9 +9,9 @@
 
 ## Introduction
 
-**UTF** is a header only library providing simple unicode iterator adapters to for converting between various unicode formats and differing endianness. Similar to those available with boost, but without the boost dependency. The iterators model the catagory of the underlying base_iterator.
+**UTF** is a header only library providing simple unicode iterator adapters to for converting between various unicode formats and differing endianness. Similar to those available with boost, but without the boost dependency. 
 
-Utility functions build on top of these iterators are available to provide standard conversions and byte order mark detection. Additional support is provided for replacing invalid byte sequences with a user provide replacement character, or the unicode default (U+FFFD �) or throwing an exception.
+Utility functions that build on top of these iterators are available to provide standard conversions and byte order mark detection. Additional support is provided for replacing invalid byte sequences with a user provide replacement character, or the unicode default (U+FFFD �) or throwing an exception.
 
 * [Iterators](#iterators)
 * [Utility Functions](#utility-functions)
@@ -21,7 +21,7 @@ Utility functions build on top of these iterators are available to provide stand
 
 ## Iterators
 
-Cach iterator adapter models the catagory of the underlying base_iterator. To ensure iterators do not iterate past the end when consuming multiple elements from the base_iterator, different constructors are used for certain iterators depending on the catagory of base_iterator.
+Each iterator adapter models the catagory of the underlying base_iterator. To ensure iterators do not iterate past the end when consuming multiple elements from the base_iterator, different constructors are used for certain iterators depending on the catagory of base_iterator.
 
 #### **|```utf8_to_utf32_iterator<base_iterator,policies...>```**
 

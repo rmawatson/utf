@@ -9,5 +9,5 @@
 #include "utf32_to_utf8_iter.h"
 #include "utf16_to_utf32_iter.h"
 #include "utf32_to_utf16_iter.h"
-#include "byte_to_type_iter.h"
+#include "stride_iter.h"
 #include "utf_utility.h"

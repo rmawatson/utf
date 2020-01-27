@@ -113,9 +113,13 @@ def make_single_header(includes,tracked_includes,strip_regexs,prefix_text,postfi
     
 if __name__ == "__main__":
 
-    includes = "../include/utf"
+    this_path = os.path.dirname(os.path.abspath(__file__))
+
+    includes = os.path.join(this_path,"../include/utf")
     tracked_includes = [fn for fn in os.listdir(includes) if fn.endswith(".h")]
+    
+    
     strip_regexs = standard_striptext + [
         re.compile(r"/\* Copyright.+?\*/",re.DOTALL)
     ]
-    make_single_header(includes,tracked_includes,strip_regexs,prefix_text,postfix_text,"../single_include/utf/utf.h")
+    make_single_header(includes,tracked_includes,strip_regexs,prefix_text,postfix_text,os.path.join(this_path,"../single_include/utf/utf.h"))

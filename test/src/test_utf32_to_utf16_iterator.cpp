@@ -6,7 +6,7 @@
 #include <sstream>
 #include <forward_list>
 #include <iostream>
-TEST_CASE("utf32_to_utf8_iterator" )
+TEST_CASE("utf32_to_utf16_iterator" )
 {
     utf::u16string u16_data_le  = read_file<char16_t>("data/data_utf16_le.txt");
     utf::u16string u16_data_be  = read_file<char16_t>("data/data_utf16_be.txt");

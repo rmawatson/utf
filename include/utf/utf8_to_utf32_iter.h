@@ -54,8 +54,8 @@ namespace utf
 
         friend utf_iterator_access;
 
-        using error_policy = select_policy_handler_t<impl, onerror, policies...>;
-        using to_policy    = select_policy_handler_t<impl, to, policies...>;
+        using error_policy = detail::select_policy_handler<impl, onerror, policies...>;
+        using to_policy    = detail::select_policy_handler<impl, to, policies...>;
         
         utf8_to_utf32_iterator_base() {};
         
@@ -219,7 +219,7 @@ namespace utf
     /*** input iterator implementation */
     template <typename impl, typename base_iterator, typename base_category, typename... policies>
     struct utf8_to_utf32_iterator_impl<impl, base_iterator, base_category,
-        enable_if_category< base_category, is_input_tag >
+        detail::enable_if_category< base_category, std::input_iterator_tag>
         , policies...> :
         utf8_to_utf32_iterator_base<impl, base_iterator, std::input_iterator_tag, uint32_t, const uint32_t&, policies...>
     {
@@ -265,7 +265,7 @@ namespace utf
     /***  forward iterator implementation */
     template <typename impl, typename base_iterator, typename base_category, typename... policies>
     struct utf8_to_utf32_iterator_impl<impl, base_iterator, base_category,
-        enable_if_category< base_category, is_forward_tag>, policies...> 
+        detail::enable_if_category< base_category, std::forward_iterator_tag>, policies...> 
         : utf8_to_utf32_iterator_base<impl, base_iterator, std::forward_iterator_tag, uint32_t, const uint32_t&, policies...>
     {
     protected:
@@ -276,7 +276,7 @@ namespace utf
     /*** bidirectional & random access iterator implementation */
     template <typename impl, typename base_iterator, typename base_category, typename... policies>
     struct utf8_to_utf32_iterator_impl<impl, base_iterator, base_category,
-        enable_if_category<base_category, is_bidirectional_tag, is_random_access_tag>, policies...>
+        detail::enable_if_category<base_category, std::bidirectional_iterator_tag, std::random_access_iterator_tag>, policies...>
         : utf8_to_utf32_iterator_base<impl, base_iterator, std::bidirectional_iterator_tag, uint32_t, const uint32_t&, policies...>
     {
     protected:
@@ -330,17 +330,17 @@ namespace utf
         utf8_to_utf32_iterator() {};
 
         template< typename category_type=typename std::iterator_traits<base_iterator>::iterator_category,
-            typename bidirectional_or_random_access=enable_if_category<category_type,is_bidirectional_tag,is_random_access_tag>>
+            typename bidirectional_or_random_access=detail::enable_if_category<category_type,std::bidirectional_iterator_tag,std::random_access_iterator_tag>>
         utf8_to_utf32_iterator(base_iterator pos, base_iterator start, base_iterator end) : impl_type(pos, start, end) {}
 
         template< typename category_type=typename std::iterator_traits<base_iterator>::iterator_category,
-            typename input_or_forward=enable_if_category<category_type, is_input_tag, is_forward_tag>>
+            typename input_or_forward=detail::enable_if_category<category_type, std::input_iterator_tag, std::forward_iterator_tag>>
         utf8_to_utf32_iterator(base_iterator pos, base_iterator end) : impl_type(pos, end) {}
     };
 
     template <typename... policies,typename base_iterator,
         typename category_type = typename std::iterator_traits<base_iterator>::iterator_category,
-        enable_if_category_b<category_type, is_bidirectional_tag, is_random_access_tag> = true>
+        detail::enable_if_category_b<category_type, std::input_iterator_tag, std::random_access_iterator_tag> = true>
     auto make_utf8_to_utf32_iterator(base_iterator begin, base_iterator end)
     {
         return utf8_to_utf32_iterator<base_iterator, policies...>{begin, begin,end};
@@ -348,7 +348,7 @@ namespace utf
 
     template <typename... policies, typename base_iterator,
         typename category_type = typename std::iterator_traits<base_iterator>::iterator_category,
-        enable_if_category_b<category_type, is_input_tag, is_forward_tag> = true>
+        detail::enable_if_category_b<category_type, std::input_iterator_tag, std::forward_iterator_tag> = true>
     auto make_utf8_to_utf32_iterator(base_iterator begin, base_iterator end)
     {
         return utf8_to_utf32_iterator<base_iterator, policies...>{begin, end};

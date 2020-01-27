@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 project(utf VERSION 0.0.1 LANGUAGES CXX)
 
 option(UTF_BUILD_TESTS "Build UTF test suite" ON)
-option(UTF_SINGLE_INCLUDE "Use single include variant" ON)
+option(UTF_SINGLE_INCLUDE "Use single include variant" OFF)
 
 set(UTF_TARGET_NAME ${PROJECT_NAME})
 set(UTF_CMAKE_CONFIG_DIR          "${CMAKE_CURRENT_BINARY_DIR}")

@@ -31,150 +31,462 @@
 
 namespace utf
 {
+
+#ifdef __cpp_char8_t
+    using u8string = std::u8string;
+#else 
+    using char8_t = char;
     using u8string = std::string;
+#endif
     using u16string = std::u16string;
     using u32string = std::u32string;
 
-    template <bool value,typename T,typename Y>
-    using conditional_t = typename std::conditional<value,T,Y>::type;
-    
-    
-    template <typename iterator_category>
-    using is_input_tag = std::is_same< iterator_category, std::input_iterator_tag >;
+    namespace mp {
 
-    template <typename iterator_category>
-    constexpr bool is_input_tag_v = is_input_tag<iterator_category>::value;
+        template <typename...>
+        using void_t = void;
 
-    template <typename iterator_category>
-    using is_forward_tag = std::is_same< iterator_category, std::forward_iterator_tag>;
+        template <typename... Ts>
+        struct list {};
 
-    template <typename iterator_category>
-    constexpr bool is_forward_tag_v = is_forward_tag<iterator_category>::value;
+        template <template <typename...> class Fn, typename... Ts>
+        struct defer {
+            using type = Fn<Ts...>;
+        };
 
-    template <typename iterator_category>
-    using is_bidirectional_tag = std::is_same< iterator_category, std::bidirectional_iterator_tag>;
+        template <typename T>
+        struct identity {
+            using type = T;
+        };
 
-    template <typename iterator_category>
-    constexpr bool is_bidirectional_tag_v = is_bidirectional_tag<iterator_category>::value;
+        template <size_t V>
+        using size_c = std::integral_constant<size_t, V>;
 
-    template <typename iterator_category>
-    using is_random_access_tag = std::is_same< iterator_category, std::random_access_iterator_tag>;
+        template <bool V>
+        using bool_c = std::integral_constant<bool, V>;
 
-    template <typename iterator_category>
-    constexpr bool is_random_access_tag_v = is_random_access_tag<iterator_category>::value;
+        template <bool V>
+        using int_c = std::integral_constant<int, V>;
 
-    template<typename...> struct any_of : std::false_type { };
-    template<typename T> struct any_of<T> : T {};
-    template<typename T, typename ... Ts>
-    struct any_of<T, Ts...> : std::conditional<bool(T::value), T, any_of<Ts...>>::type {};
+        template <bool V>
+        using uint_c = std::integral_constant<unsigned int, V>;
 
-    template<typename... Ts>
-    constexpr bool any_of_v = any_of<Ts...>::value;
+        template <template <typename...> class Fn>
+        struct func
+        {
+            template <typename... Ts>
+            using fn = typename defer<Fn, Ts...>::type;
+        };
 
-    template <typename category, template <typename> class... Ts>
-    constexpr bool category_any_of = any_of_v< Ts<category>... >;
+        template <template <typename...> class Fn>
+        using wrap = func<Fn>;
+        
+        template <template <typename...> class T>
+        struct trait
+        {
+            template <typename... Ts>
+            using fn = typename T<Ts...>::type;
+        };
 
-    template <typename category, template <typename> class... Ts>
-    using enable_if_category = typename std::enable_if<category_any_of<category,Ts...>>::type;
+        namespace detail {
+            template <typename, template <typename...> class Fn, typename... Ts >
+            struct is_valid_impl : std::false_type {};
 
-    template <typename category, template <typename> class... Ts>
-    using enable_if_category_b = typename std::enable_if<category_any_of<category, Ts...>, bool>::type;
+            template <template <typename...> class Fn, typename... Ts>
+            struct is_valid_impl<void_t<Fn<Ts...>>, Fn, Ts...> : std::true_type {};
+        }
+
+        template <template <typename...> class Fn, typename... Ts>
+        using is_valid = detail::is_valid_impl<void, Fn, Ts...>;
+
+        template < typename Q, typename... Ts>
+        using is_valid_q = is_valid<Q::template fn, Ts...>;
 
 
-    template <typename...>
+		namespace detail {
+			template <typename, template<typename...> class Fn, typename... Ts >
+			struct is_instantiable_impl : std::false_type {};
 
-    struct type_list {};
-    template <bool v>
-    using bool_c = std::integral_constant<bool, v>;
+			template <template<typename...> class Fn, typename... Ts>
+			struct is_instantiable_impl<mp::void_t<decltype(Fn<Ts...>())>, Fn, Ts...> : std::true_type {};
+		}
 
-    template <typename T>
-    struct type_c { using type = T; };
+		template <template<typename...> class Fn, typename... Ts>
+		using is_instantiable = detail::is_instantiable_impl<void, Fn, Ts...>;
 
-    template <typename...>
-    using void_t = void;
+		template < typename Q, typename... Ts>
+		using is_instantiable_q = is_instantiable<Q::template fn, Ts...>;
 
-    template< template <typename...> class tmpl, typename inst>
-    struct is_instance_of_template : std::false_type {};
+        template <template <typename...> class F, typename... Ts>
+        struct bind_back
+        {
+            template <typename... Ys>
+            using fn = typename defer<F, Ys..., Ts...>::type;
+        };
 
-    template<template <typename...> class tmpl, typename... Ts>
-    struct is_instance_of_template <tmpl, tmpl<Ts...>> : std::true_type {};
+        template <template <typename...> class F, typename... Ts>
+        struct bind_front
+        {
+            template <typename... Ys>
+            using fn = typename defer<F, Ts..., Ys...>::type;
+        };
 
-    template< template <typename...> class tmpl, typename... Ts>
-    static constexpr bool is_instance_of_template_v = is_instance_of_template<tmpl, Ts...>::value;
+        namespace detail
+        {
+            template <typename F, typename S>
+            struct transform_impl;
+
+            template <typename F, template <typename...> class S, typename... Ts>
+            struct transform_impl<F, S<Ts...>>
+            {
+                using type = S<typename defer<F::template fn, Ts>::type...>;
+            };
+        }
+
+        template <typename F, typename S>
+        using transform = typename detail::transform_impl<F, S>::type;
+
+        namespace detail {
+
+            template <typename, template <typename...> class>
+            struct rename_impl;
+
+            template <template <typename...> class A, typename... Ts, template <typename...> class B>
+            struct rename_impl<A<Ts...>, B>
+            {
+                using type = B<Ts...>;
+            };
+        }
+
+        template <typename A, template <typename...> class B>
+        using rename = typename detail::rename_impl<A, B>::type;
+
+        namespace detail
+        {
+            template <bool v, typename T, typename... E>
+            struct if_impl;
+
+            template <typename T, typename... E>
+            struct if_impl<true, T, E...>
+            {
+                using type = T;
+            };
+
+            template <typename T, typename E>
+            struct if_impl<false, T, E>
+            {
+                using type = E;
+            };
+        }
+
+        template <typename C, typename T, typename E>
+        using if_ = typename detail::if_impl<static_cast<bool>(C::value), T, E>::type;
+
+        template <bool v, typename T, typename E>
+        using if_v = typename  detail::if_impl<v, T, E>::type;
+
+        namespace detail
+        {
+            template<typename S>
+            struct first_impl;
+
+            template<template <typename...> class S, typename T, typename... Ts>
+            struct first_impl<S<T, Ts...>>
+            {
+                using type = T;
+            };
+
+            template<typename S>
+            struct second_impl;
+
+            template<template <typename...> class S, typename T, typename T1, typename... Ts>
+            struct second_impl<S<T, T1, Ts...>>
+            {
+                using type = T1;
+            };
+        }
+
+        template <typename S>
+        using first = typename detail::first_impl<S>::type;
+
+        template <typename S>
+        using second = typename detail::second_impl<S>::type;
+
+        namespace detail {
+
+            template <typename... Ts>
+            struct inherit : Ts...{};
+
+            template <typename M, typename T>
+            struct map_find_impl;
+
+            template <template <typename...> class M, typename... Ys, typename T>
+            struct map_find_impl<M<Ys...>, T>
+            {
+                using _kvs = inherit<identity<Ys>...>;
+
+                template <template <typename...> class P, typename... Vs>
+                static constexpr identity<P<T, Vs...>> _f(identity<P<T, Vs...>>*);
+                static constexpr identity<void> _f(...);
+                using _result = decltype(f(reinterpret_cast<_kvs*>(nullptr)));
+                using type = typename _result::type;
+            };
+        }
+
+        template <typename M, typename T>
+        using map_find = typename detail::map_find_impl<M, T>::type;
+
+        namespace detail {
+
+            template<
+                class S1 = list<>, class S2 = list<>, class S3 = list<>, class S4 = list<>, class S5 = list<>, class S6 = list<>,
+                class S7 = list<>, class S8 = list<>, class S9 = list<>, class S10 = list<>, class S11 = list<>
+            > struct append_impl
+            {};
+
+            template<
+                template<class...> class S1, template<class...> class S2, template<class...> class S3, template<class...> class S4,
+                template<class...> class S5, template<class...> class S6, template<class...> class S7, template<class...> class S8,
+                template<class...> class S9, template<class...> class S10, template<class...> class S11,
+                typename... T1, typename... T2, typename... T3, typename... T4, typename... T5, typename... T6, typename... T7,
+                typename... T8, typename... T9, typename... T10, typename... T11>
+                struct append_impl<S1<T1...>, S2<T2...>, S3<T3...>, S4<T4...>, S5<T5...>, S6<T6...>, S7<T7...>, S8<T8...>, S9<T9...>, S10<T10...>, S11<T11...>>
+            {
+                using type = S1<T1..., T2..., T3..., T4..., T5..., T6..., T7..., T8..., T9..., T10..., T11...>;
+            };
+        }
+
+        template<typename... Ls>
+        using append = typename detail::append_impl<Ls...>::type;
+
+        namespace detail {
+            template<typename, template <typename...> class >
+            struct filter_if_impl;
+
+            template <template <typename...> class S, template <typename...> class F, typename...Ts >
+            struct filter_if_impl<S<Ts...>, F>
+            {
+                template<class Y, class... Ys>
+                using _filter = mp::if_<typename F<Y>::type, mp::list<>, mp::list<Y>>;
+
+                using _filtered = mp::transform<mp::func<_filter>, S<Ts...>>;
+                using type = mp::rename< mp::transform<mp::func<_filter>, S<Ts...>>, mp::append>;
+            };
+        }
+
+        template <typename S, template <typename...> class F>
+        using filter_if = typename detail::filter_if_impl<S, F>::type;
+
+        template <typename S, typename  F>
+        using filter_if_q = typename  detail::filter_if_impl<S, F::template fn>::type;
+
+        namespace detail
+        {
+            template <typename... >
+            struct make_map;
+
+            template <typename... Ts, size_t... Is>
+            struct make_map<std::index_sequence<Is...>, Ts...>
+            {
+                using type = list<list<size_c<Is>, Ts>...>;
+            };
+
+            template <typename...>
+            struct at_impl;
+
+            template <template <typename...> class S, typename I, typename... Ts>
+            struct at_impl<S<Ts...>, I>
+            {
+                using type = second<map_find<typename make_map<std::index_sequence_for<Ts...>, Ts...>::type, I>>;
+            };
+
+        }
+
+        template <typename S, typename I>
+        using at = typename detail::at_impl<S, I>::type;
+
+        template <typename S, size_t I>
+        using at_v = typename detail::at_impl<S, size_c<I>>::type;
+
+        template <typename S>
+        struct size;
+
+        template <template <typename...> class S, typename... Ts>
+        struct size<S<Ts...>> : size_c<sizeof...(Ts)> {};
+
+        template <typename S>
+        using front = first<S>;
+
+        template <typename S>
+        using back = at_v<S, size<S>::value - 1>;
+
+        template <typename B>
+        using not_c = bool_c<!static_cast<bool>(B::value)>;
+
+        namespace detail
+        {
+            constexpr size_t accumulate(...)
+            {
+                return 0;
+            }
+
+            template <typename V, typename ... Vs>
+            constexpr size_t accumulate(V v, Vs... vs)
+            {
+                return static_cast<size_t>(v) + accumulate(vs...);
+            }
+
+            template <typename S, typename T>
+            struct count_impl;
+
+            template <template <typename...> class S, typename... Ys, typename T>
+            struct count_impl<S<Ys...>, T>
+            {
+                static constexpr size_t _result = accumulate(static_cast<bool>(std::is_same<Ys, T>::value)... );
+                using type = size_c<_result>;
+            };
+        }
+
+        template <typename S, typename T>
+        using count = typename detail::count_impl<S, T>::type;
+
+        namespace detail
+        {
+            template <typename S, template <typename...> class P>
+            struct count_if_impl;
+
+            template <template <typename...> class S, typename... Ys, template <typename...> class P>
+            struct count_if_impl<S<Ys...>, P>
+            {
+                static constexpr size_t _result = accumulate(static_cast<bool>(P<Ys>::value)...);
+                using type = size_c<_result>;
+            };
+        }
+
+
+        template<typename S, template <typename...> class P>
+        using count_if = typename detail::count_if_impl<S, P>::type;
+
+        template<typename S, typename P>
+        using count_if_q = typename detail::count_if_impl<S, P::template fn>::type;
+
+        template <typename S, template <typename...> class P>
+        using any_of = bool_c<static_cast<bool>(count_if<S, P>::value)>;
+
+        template <typename S, typename P>
+        using any_of_q = any_of<S, P::template fn>;
+
+        template<typename... Ts>
+        using any = bool_c<(count_if_q < mp::list<bool_c<static_cast<bool>(Ts::value)>...>,
+            bind_front<std::is_same, bool_c<true> >>::value != 0)>;
+
+        template <typename S, template <typename...> class P>
+        using all_of = bool_c<count_if<S, P>::value == size<S>::value>;
+
+        template <typename S, typename P>
+        using all_of_q = all_of<S, P::template fn>;
+
+        template<typename... Ts>
+        using all = bool_c<(count_if_q < mp::list<bool_c<static_cast<bool>(Ts::value)>...>,
+            bind_front<std::is_same, bool_c<true> >>::value == sizeof...(Ts))>;
+
+        template <typename S, template <typename...> class P>
+        using none_of = not_c<all_of<S, P>>;
+
+        template <typename S, typename P>
+        using none_of_q = none_of<S, P::template fn>;
+
+        template<typename... Ts>
+        using none = not_c<all<Ts...>>;
+
+        template <typename S, typename T>
+        using contains = bool_c < static_cast<bool>(count<S, T>::value)>;
+    }
 
     template < typename impl, template <typename...> class tag_tmpl>
     struct policy_default;
 
-    #define UTF_POLICY_DEFAULT(ITER,POLICYTYPE,VALUE) \
+#define UTF_POLICY_DEFAULT(ITER,POLICYTYPE,VALUE) \
     template <typename base_iterator,typename...Ts> struct policy_default<ITER<base_iterator,Ts...>,POLICYTYPE> { using type = VALUE; }  
 
 
-    template < typename impl, template <typename...> class policy_tmpl, typename selected, typename policy_list>
-    struct select_policy_handler_impl;
-
-    template < typename impl, template <typename...> class policy_tmpl, typename... selected, typename... policies>
-    struct select_policy_handler_impl<impl, policy_tmpl, type_list<selected...>, type_list<policies...>>
+    namespace detail
     {
-        static_assert(sizeof...(selected) < 2, "Multiple overlapping policies specified, single policy expected.");
+        template <typename category, typename... catagories>
+		struct category_any_of : mp::any_of_q<mp::list<catagories...>, mp::bind_front< std::is_same, category>> {};
 
-		template <typename... >
-		struct select_first_or_default {  using type = typename policy_default<impl, policy_tmpl>::type; };
+        template <typename category, typename... categories>
+        using enable_if_category = typename std::enable_if<category_any_of<category, categories...>::value>::type;
 
-		template <typename selected_, typename... rest>
-		struct select_first_or_default<selected_, rest...>
-		{ using type = typename selected_::type; };
-		
-        using type = 
-            typename policy_tmpl<void>::template handler<
-                impl, 
-				typename select_first_or_default<selected...>::type
+        template <typename category, typename... catagories>
+        using enable_if_category_b = typename std::enable_if<category_any_of<category, catagories...>::value, bool>::type;
+
+        template< template <typename...> class tmpl, typename inst>
+        struct is_instance_of_template : mp::bool_c<false> {};
+
+        template<template <typename...> class tmpl, typename... Ts>
+        struct is_instance_of_template <tmpl, tmpl<Ts...>> : mp::bool_c<true> {};
+
+        template <typename T>
+        struct is_char_type_impl {
+            using type = mp::any_of_q< mp::list<char, char8_t, wchar_t, char16_t, char32_t>,
+                mp::bind_front<std::is_same, T>>;
+        };
+
+        template <typename T>
+        using is_char_type = typename is_char_type_impl<T>::type;
+
+        template <typename impl, template <typename...> class policy_tmpl, typename policy_list>
+        struct select_policy_handler_impl
+        {
+            template <typename policy>
+            using _is_not_policy_q = mp::not_c<is_instance_of_template<policy_tmpl, policy>>;
+            using _filtered = mp::filter_if<policy_list, _is_not_policy_q>;
+            static_assert(mp::size<_filtered>::value < 2, "Multiple overlapping policies specified, single policy expected.");
+
+            using type = typename policy_tmpl<void>::template handler< impl,
+                typename mp::if_ <
+                mp::size<_filtered>,
+                mp::defer<mp::first, _filtered>,
+                mp::identity<policy_default<impl, policy_tmpl>>
+                >::type::type
             >;
-    };
+        };
 
-    template < typename impl, template <typename...> class policy_tmpl, typename... selected, typename policy, typename... policies>
-    struct select_policy_handler_impl<impl, policy_tmpl, type_list< selected...>, type_list<policy, policies...>> :
-        select_policy_handler_impl <
-        impl,
-        policy_tmpl,
-        std::conditional_t<
-            is_instance_of_template_v<policy_tmpl, policy>,
-            type_list<selected..., policy>,
-            type_list<selected...>
-        >, type_list<policies...> > {};
+        template < typename impl, template <typename...> class policy_tmpl, typename... policies>
+        using select_policy_handler = typename select_policy_handler_impl<impl, policy_tmpl, mp::list<policies...>>::type;
 
-    template < typename impl, template <typename...> class policy_tmpl, typename... policies>
-    using select_policy_handler_t = typename select_policy_handler_impl<impl, policy_tmpl, type_list<>, type_list<policies...>>::type;
+        template <template <typename...> class test, typename default_, typename... args>
+        struct select_argument_or_default_impl
+        {
+            template <typename T>
+            using not_test = mp::bool_c<!static_cast<bool>(test<T>::value)>;
 
-    template <template <typename...> class test, typename default_, typename... args>
-    struct select_argument_or_default
-    {
-        using type = default_;
-    };
+            using _filtered = mp::filter_if<mp::list<args...>, not_test>;
+            using type = typename mp::if_<
+                mp::size<_filtered>,
+                mp::defer<mp::first, _filtered>,
+                mp::identity<default_>
+            >::type;
+        };
 
-    template <template <typename...> class test, typename default_, typename arg, typename... args>
-    struct select_argument_or_default<test, default_, arg, args...> :
-        std::conditional_t<test<arg>::value,
-        utf::type_c<arg>,
-        select_argument_or_default<test, default_, args...>
-        > {};
+        template <template <typename...> class test, typename...Ts>
+        using select_argument_or_default = typename select_argument_or_default_impl<test, Ts...>::type;
 
-    template <template <typename...> class test,typename...Ts>
-    using select_argument_or_default_t = typename select_argument_or_default<test, Ts...>::type;
+        template <typename T, typename enable = void>
+        struct has_value_type : std::false_type {};
 
-    template <typename T, typename enable = void>
-    struct has_value_type : std::false_type {};
+        template <typename T>
+        struct has_value_type<T, mp::void_t<typename T::value_type>>
+            : std::true_type {};
 
-    template <typename T>
-    struct has_value_type<T, void_t<typename T::value_type>>
-        : std::true_type {};
+        template <typename T, typename enable = void>
+        struct has_begin_end : std::false_type {};
 
-    template <typename T, typename enable = void>
-    struct has_begin_end : std::false_type {};
-
-    template <typename T>
-    struct has_begin_end<T, void_t<decltype(std::declval<T>().begin()), decltype(std::declval<T>().end())>>
-        : std::true_type {};
-
+        template <typename T>
+        struct has_begin_end<T, mp::void_t<decltype(std::declval<T>().begin()), decltype(std::declval<T>().end())>>
+            : std::true_type {};
+    }
 
     template <uint32_t value_>
     struct replace_with {
@@ -183,7 +495,6 @@ namespace utf
     using replace_with_fffd = replace_with<0xfffd>;
 
     struct throw_exception {};
-
 
     struct little_endian {};
     struct big_endian {};
@@ -386,7 +697,7 @@ namespace utf
         { using type = iterator_type; };
 
         template<typename T>
-        struct resultof_postfix_increment_impl<T, void_t<typename T::postfix_increment_result_type>>
+        struct resultof_postfix_increment_impl<T, mp::void_t<typename T::postfix_increment_result_type>>
         {
             using type = typename T::postfix_increment_result_type;
         };
@@ -394,10 +705,10 @@ namespace utf
         using type = typename resultof_postfix_increment_impl<resultof_postfix_increment>::type;
     };
 
-    template <typename impl, typename base_iterator, typename impl_catagory,typename fn_category, typename value, typename reference>
-    struct utf_iterator_base < impl, base_iterator, impl_catagory, fn_category ,value, reference,
-        enable_if_category<fn_category, is_input_tag, is_forward_tag>
-    > : utf_iterator_base < impl, base_iterator, impl_catagory, void, value, reference >
+    template <typename impl, typename base_iterator, typename impl_category, typename fn_category,  typename value, typename reference>
+    struct utf_iterator_base < impl, base_iterator, impl_category,fn_category,value, reference,
+        detail::enable_if_category<fn_category, std::input_iterator_tag, std::forward_iterator_tag>
+    > : utf_iterator_base < impl, base_iterator, impl_category, void, value, reference >
     {
 
         impl& operator++()
@@ -416,10 +727,10 @@ namespace utf
         }
     };
 
-    template <typename impl, typename base_iterator, typename impl_catagory,typename fn_category, typename value, typename reference>
-    struct utf_iterator_base < impl, base_iterator, impl_catagory, fn_category, value, reference,
-        enable_if_category<fn_category, is_bidirectional_tag, is_random_access_tag>
-    > : utf_iterator_base<impl, base_iterator, impl_catagory, std::forward_iterator_tag, value, reference>
+    template <typename impl, typename base_iterator, typename impl_category,typename fn_category,typename value, typename reference>
+    struct utf_iterator_base < impl, base_iterator, impl_category, fn_category, value, reference,
+        detail::enable_if_category<fn_category, std::bidirectional_iterator_tag, std::random_access_iterator_tag>
+    > : utf_iterator_base<impl, base_iterator, impl_category, std::forward_iterator_tag, value, reference>
         
     {
         impl& operator--()

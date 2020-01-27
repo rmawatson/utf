@@ -9,8 +9,6 @@
 TEST_CASE("utf16_to_utf32_iterator" )
 {
     utf::u16string u16data     = read_file<char16_t>("data/data_utf16_le.txt");
-
-    
     utf::u32string u32_le_data = read_file<char32_t>("data/data_utf32_le.txt");
     utf::u32string u32_be_data = read_file<char32_t>("data/data_utf32_be.txt");
 
@@ -203,7 +201,7 @@ TEST_CASE("utf16_to_utf32_iterator" )
 
         std::advance(base_begin, sizeof(utf::utf16_little_endian_bom));
         
-        using converting_iterator = utf::bytes_to_short_iterator<std::istreambuf_iterator<char>>;
+        using converting_iterator = utf::stride_short_iterator<std::istreambuf_iterator<char>>;
         converting_iterator b2s_pos(base_begin,base_end);
         converting_iterator b2s_end(base_end,base_end);
         

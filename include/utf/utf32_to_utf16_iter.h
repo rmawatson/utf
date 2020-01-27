@@ -68,9 +68,9 @@ namespace utf
             pos_(pos)
         {}
 
-        using error_policy = select_policy_handler_t<impl, onerror, policies...>;
-        using from_policy  = select_policy_handler_t<impl, from, policies...>;
-        using to_policy    = select_policy_handler_t<impl, to, policies...>;
+        using error_policy = detail::select_policy_handler<impl, onerror, policies...>;
+        using from_policy  = detail::select_policy_handler<impl, from, policies...>;
+        using to_policy    = detail::select_policy_handler<impl, to, policies...>;
 
         template <typename onerror_policy, typename from_policy,typename to_policy>
         static size_t read_next(base_iterator& pos, uint16_t* bytes, onerror_policy, from_policy, to_policy)
@@ -156,7 +156,7 @@ namespace utf
     /*** input iterator implementation */
     template <typename impl, typename base_iterator, typename base_category, typename... policies>
     struct utf32_to_utf16_iterator_impl<impl, base_iterator, base_category,
-        enable_if_category< typename std::iterator_traits<base_iterator>::iterator_category, is_input_tag>
+        detail::enable_if_category< typename std::iterator_traits<base_iterator>::iterator_category, std::input_iterator_tag>
         , policies...> :
         utf32_to_utf16_iterator_base<impl, base_iterator, base_category, uint16_t, const uint16_t&, policies...>
     {
@@ -209,7 +209,7 @@ namespace utf
     /*** forward iterator implementation */
     template <typename impl, typename base_iterator, typename base_category, typename... policies>
     struct utf32_to_utf16_iterator_impl<impl, base_iterator, base_category,
-        enable_if_category< typename std::iterator_traits<base_iterator>::iterator_category, is_forward_tag>
+        detail::enable_if_category< typename std::iterator_traits<base_iterator>::iterator_category, std::forward_iterator_tag>
         , policies...> :
         utf32_to_utf16_iterator_base<impl, base_iterator, base_category, uint16_t, const uint16_t&, policies...>
     {
@@ -222,7 +222,7 @@ namespace utf
     /*** bidirectional & random access iterator implementation */
     template <typename impl, typename base_iterator, typename base_category, typename... policies>
     struct utf32_to_utf16_iterator_impl<impl, base_iterator, base_category,
-        enable_if_category<  typename std::iterator_traits<base_iterator>::iterator_category, is_bidirectional_tag, is_random_access_tag>
+        detail::enable_if_category<  typename std::iterator_traits<base_iterator>::iterator_category, std::bidirectional_iterator_tag, std::random_access_iterator_tag>
         , policies...> :
         utf32_to_utf16_iterator_base<impl, base_iterator, std::bidirectional_iterator_tag, uint16_t, const uint16_t&, policies...>
     {

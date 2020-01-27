@@ -12,24 +12,20 @@ environment:
       PLATFORM: x86
       FLAGS: ""
       GENERATOR: Visual Studio 14 2015
-
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      PLATFORM: x86
-      FLAGS: ""
-      GENERATOR: Visual Studio 15 2017
-
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      PLATFORM: x86
-      FLAGS: ""
-      GENERATOR: Visual Studio 15 2017
-
+      
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
       PLATFORM: x64
       FLAGS: ""
       GENERATOR: Visual Studio 14 2015
+      
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      COMPILER: mingw
+      PLATFORM: x86
+      FLAGS: ""
+      GENERATOR: Ninja
 
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      PLATFORM: x64
+      PLATFORM: x86
       FLAGS: ""
       GENERATOR: Visual Studio 15 2017
 
@@ -37,6 +33,22 @@ environment:
       PLATFORM: x64
       FLAGS: ""
       GENERATOR: Visual Studio 15 2017
+
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      COMPILER: mingw
+      PLATFORM: x86
+      FLAGS: ""
+      GENERATOR: Ninja
+      
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      PLATFORM: x86
+      FLAGS: ""
+      GENERATOR: Visual Studio 16 2019
+
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      PLATFORM: x64
+      FLAGS: ""
+      GENERATOR: Visual Studio 16 2019
 
 init:
   - cmake --version
@@ -47,7 +59,6 @@ install:
   - if "%COMPILER%"=="mingw" 7z x ninja.zip -oC:\projects\deps\ninja > nul
   - if "%COMPILER%"=="mingw" set PATH=C:\projects\deps\ninja;%PATH%
   - if "%COMPILER%"=="mingw" set PATH=C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64\bin;%PATH%
-  - if "%COMPILER%"=="mingw" g++ --version
 
 before_build:
   - if "%PLATFORM%"=="x64" cmake . -G "%GENERATOR%" -DCMAKE_IGNORE_PATH="C:/Program Files/Git/usr/bin" -DCMAKE_GENERATOR_PLATFORM=%PLATFORM%

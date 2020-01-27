@@ -296,15 +296,14 @@ int main()
     std::advance(base_pos, sizeof(utf32_little_endian_bom));
 
     //read from the stream 4 bytes at a time for the utf32_to_utf8_iterator
-
-    using btol_iterator = bytes_to_long_iterator<base_iterator>;
+    using stridel_iterator = stride_long_iterator<base_iterator>;
 
     // using the input iterator constructor
-    btol_iterator b2l_pos(base_pos, base_end);
-    btol_iterator b2l_end(base_end, base_end);
+    stridel_iterator b2l_pos(base_pos, base_end);
+    stridel_iterator b2l_end(base_end, base_end);
 
     //specify the source endianness. The default will be the platform endianness. using the default onerror<throw_exception> policy.
-    using utf_iterator = utf32_to_utf8_iterator<btol_iterator, from<little_endian>>;
+    using utf_iterator = utf32_to_utf8_iterator<stridel_iterator, from<little_endian>>;
 
 
     utf_iterator utf_pos(b2l_pos);

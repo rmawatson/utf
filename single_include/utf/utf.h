@@ -4,7 +4,7 @@
  * LICENSE file in the root directory of this source tree)
  */
  
-/* this file has been automatically generated on 2020-01-29 12:38:58 and should not be edited manually. */
+/* this file has been automatically generated on 2020-04-27 04:46:46 and should not be edited manually. */
  
 #pragma once
 #include <algorithm>
@@ -2392,7 +2392,7 @@ namespace utf
                 args...>;
 
             return utf_convert_impl<result_type>(begin, end,
-                traits::iterators(),
+                typename traits::iterators(),
                 mp::list<args...>());
         }
 
@@ -2407,7 +2407,7 @@ namespace utf
                 args...>;
 
             return utf_convert_impl<result_type>(&source, &source + 1,
-                traits::iterators(),
+                typename traits::iterators(),
                 mp::list<args...>());
         }
 

@@ -194,7 +194,7 @@ namespace utf
                 args...>;
 
             return utf_convert_impl<result_type>(begin, end,
-                traits::iterators(),
+                typename traits::iterators(),
                 mp::list<args...>());
         }
 
@@ -209,7 +209,7 @@ namespace utf
                 args...>;
 
             return utf_convert_impl<result_type>(&source, &source + 1,
-                traits::iterators(),
+                typename traits::iterators(),
                 mp::list<args...>());
         }
 

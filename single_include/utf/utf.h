@@ -4,7 +4,7 @@
  * LICENSE file in the root directory of this source tree)
  */
  
-/* this file has been automatically generated on 2020-04-27 04:46:46 and should not be edited manually. */
+/* this file has been automatically generated on 2023-02-03 03:08:32 and should not be edited manually. */
  
 #pragma once
 #include <algorithm>
@@ -715,7 +715,7 @@ namespace utf
 
     template <typename impl, typename base_iterator, typename impl_category, typename fn_category,  typename value, typename reference>
     struct utf_iterator_base < impl, base_iterator, impl_category,fn_category,value, reference,
-        detail::enable_if_category<fn_category, std::input_iterator_tag, std::forward_iterator_tag>
+        detail::enable_if_category<fn_category, std::input_iterator_tag>
     > : utf_iterator_base < impl, base_iterator, impl_category, void, value, reference >
     {
 
@@ -738,7 +738,7 @@ namespace utf
     template <typename impl, typename base_iterator, typename impl_category,typename fn_category,typename value, typename reference>
     struct utf_iterator_base < impl, base_iterator, impl_category, fn_category, value, reference,
         detail::enable_if_category<fn_category, std::bidirectional_iterator_tag, std::random_access_iterator_tag>
-    > : utf_iterator_base<impl, base_iterator, impl_category, std::forward_iterator_tag, value, reference>
+    > : utf_iterator_base<impl, base_iterator, impl_category, void, value, reference>
         
     {
         impl& operator--()

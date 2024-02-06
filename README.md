@@ -1,6 +1,5 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/ix95xf1mv55v9pag/branch/master?svg=true)](https://ci.appveyor.com/project/rmawatson/utf/branch/master)
 [![Build Status](https://travis-ci.com/rmawatson/utf.svg?branch=master)](https://travis-ci.com/rmawatson/utf)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/3287a3623db942fa887042e2624c5a6e)](https://www.codacy.com/app/rmawatson/utf?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=rmawatson/utf&amp;utm_campaign=Badge_Grade)
 [![GitHub License](https://img.shields.io/badge/license-Boost%201.0-blue.svg)](https://github.com/rmawatson/utf/blob/master/LICENSE)
 ![platform](https://img.shields.io/badge/platform-visual%20studio-blue.svg?logo=windows&longCache=true&style=flat&logoColor=white)
 ![platform](https://img.shields.io/badge/platform-xcode-blue.svg?logo=apple&longCache=true&style=flat&logoColor=white)
